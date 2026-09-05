@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>학교업무 매니저</title>
+<style>
+:root{
+  --bg:#f5f7f4; --panel:#fff; --sidebar:#17342e; --sidebar2:#24483f;
+  --accent:#4f7d70; --accent-soft:#e6efeb; --text:#202a27; --muted:#7e8885;
+  --border:#dfe6e3; --shadow:0 12px 30px rgba(31,41,38,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Pretendard,"Noto Sans KR",Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input{font:inherit}
+.app{min-height:100vh;display:grid;grid-template-columns:220px 1fr}
+.sidebar{
+  background:var(--sidebar);color:#fff;padding:26px 18px;display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh
+}
+.brand{padding:4px 6px 26px;border-bottom:1px solid rgba(255,255,255,.12)}
+.brand h1{font-size:17px;margin:0 0 5px}.brand p{font-size:12px;opacity:.6;margin:0}
+.mainnav{margin-top:24px;display:grid;gap:8px}
+.mainnav button{
+  border:0;background:transparent;color:#fff;text-align:left;padding:14px 14px;
+  border-radius:12px;cursor:pointer;font-weight:800
+}
+.mainnav button:hover,.mainnav button.active{background:var(--sidebar2)}
+.sidefoot{margin-top:auto;font-size:11px;opacity:.55;padding:15px 7px 0;border-top:1px solid rgba(255,255,255,.12)}
+.main{padding:34px 38px 60px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.eyebrow{font-size:11px;letter-spacing:.14em;font-weight:800;color:var(--accent);margin-bottom:6px}
+.topbar h2{margin:0;font-size:28px}
+.date{background:#fff;border:1px solid var(--border);border-radius:999px;padding:9px 13px;color:var(--muted);font-size:12px}
+.page-tabs{
+  display:flex;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);
+  border-radius:16px;padding:10px;margin-bottom:22px;box-shadow:var(--shadow)
+}
+.page-tabs button{
+  border:0;background:transparent;padding:11px 14px;border-radius:10px;cursor:pointer;
+  color:#59635f;font-weight:700;font-size:13px
+}
+.page-tabs button:hover{background:#f1f5f3}
+.page-tabs button.active{background:var(--accent-soft);color:#2f5f52}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.header h3{margin:0 0 5px;font-size:18px}.header p{margin:0;color:var(--muted);font-size:13px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab,.addtab{
+  border:1px solid var(--border);background:#fff;border-radius:10px;padding:8px 12px;
+  cursor:pointer;font-weight:700;font-size:12px
+}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.addtab{border-style:dashed;color:var(--accent)}
+.subject-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.subject{
+  border:1px solid var(--border);border-radius:16px;background:#fbfcfb;padding:17px
+}
+.subject h4{margin:0 0 13px;font-size:16px}
+.yearrow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+.yearbtn,.yearadd{border:1px solid var(--border);background:#fff;border-radius:8px;padding:7px 9px;cursor:pointer;font-size:12px}
+.yearbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.filebox{border:1px dashed #bccac5;background:#fff;border-radius:13px;padding:13px;min-height:128px}
+.filehead{display:flex;justify-content:space-between;align-items:center}
+.filehead strong{font-size:13px}
+.plus{
+  width:34px;height:34px;border:0;border-radius:9px;background:var(--accent);color:#fff;
+  cursor:pointer;font-size:20px;line-height:1
+}
+.empty{text-align:center;color:var(--muted);font-size:12px;padding:23px 0 7px}
+.filelist{display:grid;gap:7px;margin-top:11px}
+.fileitem{padding:9px 10px;border-radius:9px;background:#f8faf9;border:1px solid #edf0ef;font-size:12px;display:flex;justify-content:space-between;gap:12px}
+.fileitem small{color:var(--muted)}
+.fulladd{
+  width:100%;margin-top:17px;padding:12px;border:1px dashed var(--accent);
+  border-radius:11px;background:transparent;color:var(--accent);cursor:pointer;font-weight:800
+}
+.placeholder{border:1px dashed var(--border);border-radius:15px;padding:40px;text-align:center;color:var(--muted);background:#fafbfa}
+@media(max-width:850px){
+  .app{grid-template-columns:170px 1fr}.main{padding:24px 18px}.subject-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><h1>School Manager</h1><p>학교업무 관리 페이지</p></div>
+    <div class="mainnav">
+      <button id="workBtn">업무</button>
+      <button id="classBtn" class="active">수업</button>
+    </div>
+    <div class="sidefoot">브라우저 로컬 저장 기반</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div><div class="eyebrow">SCHOOL WORKSPACE</div><h2 id="title">수업</h2></div>
+      <div class="date" id="date"></div>
+    </div>
+
+    <div id="lessonTabs" class="page-tabs">
+      <button data-section="plan" class="active">교수학습 및 평가계획</button>
+      <button data-section="performance">수행평가</button>
+      <button data-section="materials">수업자료</button>
+      <button data-section="worksheet">학습지</button>
+      <button data-section="vibe">바이브 코딩</button>
+      <button data-section="afterschool">방과후 수업</button>
+    </div>
+
+    <section id="content"></section>
+  </main>
+</div>
+
+<input type="file" id="fileInput" multiple hidden>
+
+<script>
+(function(){
+  const DEFAULT_YEARS=["2024","2025","2026"];
+  const DEFAULT_SUBJECTS=["역사1","역사2","사회1","사회2"];
+  const NESTED=["performance","materials","worksheet"];
+  const TITLES={
+    plan:"교수학습 및 평가계획",performance:"수행평가",materials:"수업자료",
+    worksheet:"학습지",vibe:"바이브 코딩",afterschool:"방과후 수업"
+  };
+
+  let state;
+  try{ state=JSON.parse(localStorage.getItem("schoolManagerStateV2")||"{}"); }
+  catch(e){ state={}; }
+
+  state.customPlanYears ||= [];
+  state.customSubjects ||= {};
+  state.customYears ||= {};
+  state.activeYears ||= {};
+  state.files ||= {};
+
+  let currentSection="plan";
+  let uploadTarget=null;
+
+  const content=document.getElementById("content");
+  const fileInput=document.getElementById("fileInput");
+  const lessonTabs=document.getElementById("lessonTabs");
+  const title=document.getElementById("title");
+  const workBtn=document.getElementById("workBtn");
+  const classBtn=document.getElementById("classBtn");
+
+  function save(){ localStorage.setItem("schoolManagerStateV2",JSON.stringify(state)); }
+  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
+  function key(section,subject,year){ return section+"::"+(subject||"root")+"::"+year; }
+  function activeKey(section,subject){ return section+"::"+(subject||"root"); }
+  function activeYear(section,subject){ return state.activeYears[activeKey(section,subject)] || "2026"; }
+  function years(section,subject){ return [...DEFAULT_YEARS,...(state.customYears[section+"::"+subject]||[])]; }
+  function fmt(bytes){
+    if(bytes<1024)return bytes+" B";
+    if(bytes<1048576)return (bytes/1024).toFixed(1)+" KB";
+    return (bytes/1048576).toFixed(1)+" MB";
+  }
+
+  const d=new Date();
+  document.getElementById("date").textContent=`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+
+  function fileList(section,subject,year){
+    const arr=state.files[key(section,subject,year)]||[];
+    if(!arr.length)return '<div class="empty">아직 업로드된 파일이 없습니다.</div>';
+    return '<div class="filelist">'+arr.map(f=>`<div class="fileitem"><span>${esc(f.name)}</span><small>${fmt(f.size)}</small></div>`).join("")+'</div>';
+  }
+
+  function renderPlan(){
+    const yrs=[...DEFAULT_YEARS,...state.customPlanYears];
+    const active=state.activeYears["plan::root"]||"2026";
+    content.innerHTML=`
+      <div class="card">
+        <div class="header"><div><h3>교수학습 및 평가계획</h3><p>연도별 계획 파일을 정리합니다.</p></div></div>
+        <div class="tabs" id="planYears">
+          ${yrs.map(y=>`<button class="tab ${y===active?"active":""}" data-year="${esc(y)}">${esc(y)}</button>`).join("")}
+          <button class="addtab" id="addPlanYear">+ 새 하위탭</button>
+        </div>
+        <div class="filebox">
+          <div class="filehead"><strong>${esc(active)} 파일</strong><button class="plus" id="planUpload">+</button></div>
+          ${fileList("plan","",active)}
+        </div>
+      </div>`;
+
+    document.querySelectorAll("#planYears [data-year]").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        state.activeYears["plan::root"]=btn.dataset.year; save(); renderPlan();
+      });
+    });
+    document.getElementById("addPlanYear").addEventListener("click",()=>{
+      const v=prompt("새 하위탭 이름을 입력하세요. 예: 2027");
+      if(!v)return;
+      if(!yrs.includes(v)){ state.customPlanYears.push(v); state.activeYears["plan::root"]=v; save(); renderPlan(); }
+    });
+    document.getElementById("planUpload").addEventListener("click",()=>{
+      uploadTarget={section:"plan",subject:"",year:active}; fileInput.value=""; fileInput.click();
+    });
+  }
+
+  function renderNested(section){
+    const subjects=[...DEFAULT_SUBJECTS,...(state.customSubjects[section]||[])];
+    content.innerHTML=`
+      <div class="card">
+        <div class="header"><div><h3>${TITLES[section]}</h3><p>과목 → 연도 → 파일 구조로 정리합니다.</p></div></div>
+        <div class="subject-grid">
+        ${subjects.map(subject=>{
+          const yrs=years(section,subject);
+          const active=activeYear(section,subject);
+          return `
+          <div class="subject">
+            <h4>${esc(subject)}</h4>
+            <div class="yearrow">
+              ${yrs.map(y=>`<button class="yearbtn ${y===active?"active":""}" data-action="year" data-subject="${esc(subject)}" data-year="${esc(y)}">${esc(y)}</button>`).join("")}
+              <button class="yearadd" data-action="addYear" data-subject="${esc(subject)}">+ 하위탭</button>
+            </div>
+            <div class="filebox">
+              <div class="filehead"><strong>${esc(active)} 파일</strong><button class="plus" data-action="upload" data-subject="${esc(subject)}" data-year="${esc(active)}">+</button></div>
+              ${fileList(section,subject,active)}
+            </div>
+          </div>`;
+        }).join("")}
+        </div>
+        <button class="fulladd" id="addSubject">+ 새 하위탭 추가</button>
+      </div>`;
+
+    content.querySelectorAll("[data-action='year']").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        state.activeYears[activeKey(section,btn.dataset.subject)]=btn.dataset.year; save(); renderNested(section);
+      });
+    });
+    content.querySelectorAll("[data-action='addYear']").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const subject=btn.dataset.subject;
+        const v=prompt("새 하위탭 이름을 입력하세요. 예: 2027");
+        if(!v)return;
+        const k=section+"::"+subject;
+        state.customYears[k] ||= [];
+        if(!years(section,subject).includes(v)){
+          state.customYears[k].push(v);
+          state.activeYears[activeKey(section,subject)]=v;
+          save(); renderNested(section);
+        }
+      });
+    });
+    content.querySelectorAll("[data-action='upload']").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        uploadTarget={section,subject:btn.dataset.subject,year:btn.dataset.year}; fileInput.value=""; fileInput.click();
+      });
+    });
+    document.getElementById("addSubject").addEventListener("click",()=>{
+      const v=prompt("새 하위탭 이름을 입력하세요.");
+      if(!v)return;
+      state.customSubjects[section] ||= [];
+      if(!subjects.includes(v)){ state.customSubjects[section].push(v); save(); renderNested(section); }
+    });
+  }
+
+  function renderSimple(section){
+    content.innerHTML=`
+      <div class="card">
+        <div class="header"><div><h3>${TITLES[section]}</h3><p>필요한 항목을 계속 확장할 수 있는 공간입니다.</p></div></div>
+        <div class="placeholder">${section==="vibe"?"바이브 코딩 프로젝트와 링크를 관리할 공간입니다.":"방과후 수업 계획과 자료를 관리할 공간입니다."}</div>
+      </div>`;
+  }
+
+  function selectLesson(section){
+    currentSection=section;
+    title.textContent="수업";
+    lessonTabs.style.display="flex";
+    lessonTabs.querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.section===section));
+    if(section==="plan")renderPlan();
+    else if(NESTED.includes(section))renderNested(section);
+    else renderSimple(section);
+  }
+
+  lessonTabs.querySelectorAll("[data-section]").forEach(btn=>{
+    btn.addEventListener("click",()=>selectLesson(btn.dataset.section));
+  });
+
+  workBtn.addEventListener("click",()=>{
+    workBtn.classList.add("active"); classBtn.classList.remove("active");
+    lessonTabs.style.display="none"; title.textContent="업무";
+    content.innerHTML='<div class="card"><div class="header"><div><h3>업무</h3><p>업무 메뉴의 세부 탭은 다음 단계에서 추가할 수 있습니다.</p></div></div><div class="placeholder">업무 관리 영역</div></div>';
+  });
+
+  classBtn.addEventListener("click",()=>{
+    classBtn.classList.add("active"); workBtn.classList.remove("active"); selectLesson(currentSection);
+  });
+
+  fileInput.addEventListener("change",()=>{
+    if(!uploadTarget || !fileInput.files.length)return;
+    const k=key(uploadTarget.section,uploadTarget.subject,uploadTarget.year);
+    state.files[k] ||= [];
+    Array.from(fileInput.files).forEach(f=>state.files[k].push({name:f.name,size:f.size,type:f.type||"파일"}));
+    save();
+    if(uploadTarget.section==="plan")renderPlan(); else renderNested(uploadTarget.section);
+  });
+
+  selectLesson("plan");
+})();
+</script>
+</body>
+</html>
